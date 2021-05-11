@@ -2,6 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Xunit;
+<<<<<<< HEAD
+=======
+using Moq;
+using Microsoft.Extensions.Logging;
+>>>>>>> Lesson-3_branch
 
 namespace MetricsManagerTests
 {
@@ -9,9 +14,19 @@ namespace MetricsManagerTests
     {
         private AgentsController controller;
 
+<<<<<<< HEAD
         public AgentsControllerUnitTests()
         {
             controller = new AgentsController();
+=======
+        private Mock<ILogger<AgentsController>> _logger;
+
+        public AgentsControllerUnitTests()
+        {
+            _logger = new Mock<ILogger<AgentsController>>();
+
+            controller = new AgentsController(_logger.Object);
+>>>>>>> Lesson-3_branch
         }
 
         [Fact]

@@ -2,6 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Xunit;
+<<<<<<< HEAD
+=======
+using Moq;
+using Microsoft.Extensions.Logging;
+>>>>>>> Lesson-3_branch
 
 namespace MetricsManagerTests
 {
@@ -9,9 +14,19 @@ namespace MetricsManagerTests
     {
         private HddMetricsController controller;
 
+<<<<<<< HEAD
         public HddControllerUnitTests()
         {
             controller = new HddMetricsController();
+=======
+        private Mock<ILogger<HddMetricsController>> _logger;
+
+        public HddControllerUnitTests()
+        {
+            _logger = new Mock<ILogger<HddMetricsController>>();
+
+            controller = new HddMetricsController(_logger.Object);
+>>>>>>> Lesson-3_branch
         }
 
         [Fact]

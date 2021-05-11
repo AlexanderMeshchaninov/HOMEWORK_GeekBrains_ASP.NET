@@ -2,6 +2,11 @@ using MetricsManager.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Xunit;
+<<<<<<< HEAD
+=======
+using Moq;
+using Microsoft.Extensions.Logging;
+>>>>>>> Lesson-3_branch
 
 namespace MetricsManagerTests
 {
@@ -9,9 +14,19 @@ namespace MetricsManagerTests
     {
         private CpuMetricsController controller;
 
+<<<<<<< HEAD
         public CpuControllerUnitTests()
         {
             controller = new CpuMetricsController();
+=======
+        private Mock<ILogger<CpuMetricsController>> _logger;
+
+        public CpuControllerUnitTests()
+        {
+            _logger = new Mock<ILogger<CpuMetricsController>>();
+
+            controller = new CpuMetricsController(_logger.Object);
+>>>>>>> Lesson-3_branch
         }
 
         [Fact]
