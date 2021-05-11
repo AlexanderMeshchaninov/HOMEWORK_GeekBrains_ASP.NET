@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$PROJECT_DIR$" t="IncludeFlat">
+      <e p="MetricsAgent" t="IncludeRecursive">
+        <e p="AppSettings" t="Include">
+          <e p="appsettings.Development.json" t="Include" />
+          <e p="appsettings.json" t="Include" />
+        </e>
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Config" t="Include">
+          <e p="nlog.config" t="Include" />
+        </e>
+        <e p="Controllers" t="Include">
+          <e p="CpuMetricsController.cs" t="Include" />
+          <e p="DotNetMetricsController.cs" t="Include" />
+          <e p="HddMetricsController.cs" t="Include" />
+          <e p="NetworkMetricsController.cs" t="Include" />
+          <e p="RamMetricsController.cs" t="Include" />
+        </e>
+        <e p="DAL" t="Include">
+          <e p="Interfaces" t="Include">
+            <e p="IRepository.cs" t="Include" />
+          </e>
+          <e p="Models" t="Include">
+            <e p="CpuMetrics.cs" t="Include" />
+            <e p="DotNetMetrics.cs" t="Include" />
+            <e p="HddMetrics.cs" t="Include" />
+            <e p="NetworkMetrics.cs" t="Include" />
+            <e p="RamMetrics.cs" t="Include" />
+          </e>
+        </e>
+        <e p="DbConnectionSource.cs" t="Include" />
+        <e p="MetricsAgent.csproj" t="IncludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="net5.0" t="Include">
+              <e p="MetricsAgent.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Program.cs" t="Include" />
+        <e p="Properties" t="Include">
+          <e p="launchSettings.json" t="Include" />
+        </e>
+        <e p="Repositories" t="Include">
+          <e p="CpuMetricsRepository.cs" t="Include" />
+          <e p="DotNetMetricsRepository.cs" t="Include" />
+          <e p="HddMetricsRepository.cs" t="Include" />
+          <e p="NetworkMetricsRepository.cs" t="Include" />
+          <e p="RamMetricsRepository.cs" t="Include" />
+        </e>
+        <e p="Requests" t="Include">
+          <e p="CpuMetricCreateRequest.cs" t="Include" />
+          <e p="DotNetMetricCreateRequest.cs" t="Include" />
+          <e p="HddMetricCreateRequest.cs" t="Include" />
+          <e p="NetworkMetricCreateRequest.cs" t="Include" />
+          <e p="RamMetricCreateRequest.cs" t="Include" />
+        </e>
+        <e p="Responses" t="Include">
+          <e p="CpuMetricsResponse.cs" t="Include" />
+          <e p="DotNetMetricResponse.cs" t="Include" />
+          <e p="HddMetricResponse.cs" t="Include" />
+          <e p="NetworkMetricResponse.cs" t="Include" />
+          <e p="RamMetricsResponse.cs" t="Include" />
+        </e>
+        <e p="Startup.cs" t="Include" />
+      </e>
+      <e p="MetricsAgentTests" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="CpuControllerUnitTests.cs" t="Include" />
+        <e p="DotNetControllerUnitTests.cs" t="Include" />
+        <e p="HddControllerUnitTest.cs" t="Include" />
+        <e p="MetricsAgentTests.csproj" t="IncludeRecursive" />
+        <e p="NetworkControllerUnitTests.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="net5.0" t="Include">
+              <e p="MetricsAgentTests.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="RamControllerUnitTests.cs" t="Include" />
+      </e>
+      <e p="MetricsManager" t="IncludeRecursive">
+        <e p="AgentInfo.cs" t="Include" />
+        <e p="appsettings.Development.json" t="Include" />
+        <e p="appsettings.json" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Controllers" t="Include">
+          <e p="AgentsController.cs" t="Include" />
+          <e p="CpuMetricsController.cs" t="Include" />
+          <e p="DotNetMetricsController.cs" t="Include" />
+          <e p="HddMetricsController.cs" t="Include" />
+          <e p="NetworkMetricsController.cs" t="Include" />
+          <e p="RamMetricsController.cs" t="Include" />
+        </e>
+        <e p="MetricsManager.csproj" t="IncludeRecursive" />
+        <e p="nlog.config" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="net5.0" t="Include">
+              <e p="MetricsManager.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Percentile.cs" t="Include" />
+        <e p="Program.cs" t="Include" />
+        <e p="Properties" t="Include">
+          <e p="launchSettings.json" t="Include" />
+        </e>
+        <e p="Startup.cs" t="Include" />
+      </e>
+      <e p="MetricsManager.sln" t="IncludeFlat" />
+      <e p="MetricsManagerTests" t="IncludeRecursive">
+        <e p="AgentsControllerUnitTests.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="CpuControllerUnitTests.cs" t="Include" />
+        <e p="DotNetControllerUnitTests.cs" t="Include" />
+        <e p="HddControllerUnitTests.cs" t="Include" />
+        <e p="MetricsManagerTests.csproj" t="IncludeRecursive" />
+        <e p="NetworkControllerUnitTests.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="net5.0" t="Include">
+              <e p="MetricsManagerTests.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="RamControllerUnitTests.cs" t="Include" />
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+    </e>
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/resharper-host/local/Transient/Rider/v203/SolutionCaches/_MetricsManager.984847903.00" t="ExcludeRecursive" />
+  </component>
+</project>
