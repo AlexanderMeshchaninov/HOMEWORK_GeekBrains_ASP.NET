@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using MetricsAgent.Models;
+using Dapper;
+using System.Linq;
 
 namespace MetricsAgent.DAL
 {
@@ -13,61 +15,41 @@ namespace MetricsAgent.DAL
 
     public class CpuMetricsRepository : ICpuMetricsRepository
     {
-        //наше соединение с бд
-        private SQLiteConnection connection;
+        private readonly IDbConnection _dbConnection;
 
-        //инжектируем соединение с бд в наш репозиторий через конструктор
-        public CpuMetricsRepository(SQLiteConnection connection)
+        public CpuMetricsRepository(IDbConnection dbConnection)
         {
-            this.connection = connection;
+            SqlMapper.AddTypeHandler(new DateTimeOffsetHandler());
+
+            _dbConnection = dbConnection;
         }
 
         public void Create(CpuMetrics item)
         {
-            //создаем команду
-            using var cmd = new SQLiteCommand(connection);
-
-            //прописываем в команду SQL запрос на вставку данных
-            cmd.CommandText = "INSERT INTO cpumetrics(value, time) VALUES(@value, @time)";
-
-            //добавляем параметры в запрос из нашего объекта
-            cmd.Parameters.AddWithValue("@value", item.Value);
-            cmd.Parameters.AddWithValue("@time", item.Time);
-            cmd.Prepare();
-
-            //выполнение команды
-            cmd.ExecuteNonQuery();
+            using (var connection = new SQLiteConnection(_dbConnection.AddConnectionDb()))
+            {
+                //запрос на вставку данных с плейсхолдерами для параметров
+                connection.Execute("INSERT INTO cpumetrics(Value, Time) VALUES(@Value, @Time)",
+                    new
+                    {
+                        Value = item.Value,
+                        Time = item.Time.ToUnixTimeMilliseconds()
+                    });
+            }
         }
 
         public IList<CpuMetrics> GetByTimePeriod(DateTimeOffset fromTime, DateTimeOffset toTime)
         {
-            //создаем команду
-            using var cmd = new SQLiteCommand(connection);
-
-            //прописываем в команду SQL запрос на выдачу данных
-            cmd.CommandText = "SELECT * FROM cpumetrics WHERE time>=@fromTime AND time<=@toTime";
-
-            cmd.Parameters.AddWithValue("@fromTime", fromTime.ToUnixTimeMilliseconds());
-            cmd.Parameters.AddWithValue("@toTime", toTime.ToUnixTimeMilliseconds());
-            cmd.Prepare();
-
-            var returnList = new List<CpuMetrics>();
-
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            using (var connection = new SQLiteConnection(_dbConnection.AddConnectionDb()))
             {
-                //пока есть что читать - читаем
-                while (reader.Read())
+                return connection.Query<CpuMetrics>(
+                    "SELECT * FROM cpumetrics WHERE Time>=@fromTime AND Time<=@toTime",
+                new
                 {
-                    //добавляем объект в список возврата
-                    returnList.Add(new CpuMetrics()
-                    {
-                        Id = reader.GetInt32(0),
-                        Value = reader.GetInt32(1),
-                        Time = reader.GetInt64(2),
-                    });
-                }
+                    fromTime = fromTime.ToUnixTimeMilliseconds(),
+                    toTime = toTime.ToUnixTimeMilliseconds()
+                }).ToList();
             }
-            return returnList;
         }
     }
 }

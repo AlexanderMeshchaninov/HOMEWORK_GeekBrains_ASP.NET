@@ -1,21 +1,10 @@
-<<<<<<< HEAD
-﻿using MetricsManager;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-=======
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using MetricsAgent.DAL;
 using MetricsAgent.Requests;
 using MetricsAgent.Responses;
-using MetricsAgent.Models;
->>>>>>> Lesson-3_branch
+using AutoMapper;
 
 namespace MetricsAgent.Controllers
 {
@@ -23,43 +12,21 @@ namespace MetricsAgent.Controllers
     [ApiController]
     public class CpuMetricsController : ControllerBase
     {
-<<<<<<< HEAD
-        [HttpGet("from/{fromTime}/to/{toTime}/percentiles/{percentile}")]
-        public IActionResult GetMetricsPercentilesFromAgent([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime, [FromRoute] Percentile percentile)
-        {
-            return Ok();
-        }
-
-        [HttpGet("from/{fromTime}/to/{toTime}")]
-        public IActionResult GetMetricsFromAgent([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
-        {
-            return Ok();
-        }
-=======
         private readonly ILogger<CpuMetricsController> _logger;
 
         private readonly ICpuMetricsRepository _repository;
 
-        public CpuMetricsController(ILogger<CpuMetricsController> logger, ICpuMetricsRepository repository)
+        private readonly IMapper _mapper;
+
+        public CpuMetricsController(ILogger<CpuMetricsController> logger, ICpuMetricsRepository repository, IMapper mapper)
         {
             _logger = logger;
 
             _logger.LogDebug(1, "NLog injected into CpuMetricsController");
 
             _repository = repository;
-        }
 
-        //Все-таки решил добавить метод Create для mock тестов
-        [HttpPost("create")]
-        public IActionResult Create([FromBody] CpuMetricCreateRequest request)
-        {
-            _repository.Create(new CpuMetrics
-            {
-                Time = request.Time.ToUnixTimeMilliseconds(),
-                Value = request.Value,
-            });
-
-            return Ok();
+            _mapper = mapper;
         }
 
         [HttpGet("getbytimeperiod")]
@@ -76,16 +43,10 @@ namespace MetricsAgent.Controllers
 
             foreach (var metric in metrics)
             {
-                response.Metrics.Add(new CpuMetricDto
-                {
-                    Time = DateTimeOffset.FromUnixTimeMilliseconds(metric.Time), 
-                    Value = metric.Value, 
-                    Id = metric.Id,
-                });
+                response.Metrics.Add(_mapper.Map<CpuMetricDto>(metric));
             }
 
             return Ok(response);
         }
->>>>>>> Lesson-3_branch
     }
 }

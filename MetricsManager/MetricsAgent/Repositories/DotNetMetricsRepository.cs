@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using MetricsAgent.Models;
+using Dapper;
+using System.Linq;
 
 namespace MetricsAgent.DAL
 {
@@ -11,63 +13,45 @@ namespace MetricsAgent.DAL
     {
     }
 
-    public class DotMetricsRepository : IDotNetMetricsRepository
+    public class DotNetMetricsRepository : IDotNetMetricsRepository
     {
-        //наше соединение с бд
-        private SQLiteConnection connection;
+        private readonly IDbConnection _dbConnection;
 
-        //инжектируем соединение с бд в наш репозиторий через конструктор
-        public DotMetricsRepository(SQLiteConnection connection)
+        public DotNetMetricsRepository(IDbConnection dbConnection)
         {
-            this.connection = connection;
+            SqlMapper.AddTypeHandler(new DateTimeOffsetHandler());
+
+            _dbConnection = dbConnection;
         }
 
         public void Create(DotNetMetrics item)
         {
-            //создаем команду
-            using var cmd = new SQLiteCommand(connection);
-
-            //прописываем в команду SQL запрос на вставку данных
-            cmd.CommandText = "INSERT INTO dotNetmetrics(value, time) VALUES(@value, @time)";
-
-            //добавляем параметры в запрос из нашего объекта
-            cmd.Parameters.AddWithValue("@value", item.Value);
-            cmd.Parameters.AddWithValue("@time", item.Time);
-            cmd.Prepare();
-
-            //выполнение команды
-            cmd.ExecuteNonQuery();
+            using (var connection = new SQLiteConnection(_dbConnection.AddConnectionDb()))
+            {
+                //запрос на вставку данных с плейсхолдерами для параметров
+                connection.Execute("INSERT INTO dotnetmetrics(Value, Time) VALUES(@Value, @Time)",
+                    new
+                    {
+                        Value = item.Value,
+                        Time = item.Time.ToUnixTimeMilliseconds(),
+                    });
+            }
         }
 
         public IList<DotNetMetrics> GetByTimePeriod(DateTimeOffset fromTime, DateTimeOffset toTime)
         {
-            //создаем команду
-            using var cmd = new SQLiteCommand(connection);
-
-            //прописываем в команду SQL запрос на выдачу данных
-            cmd.CommandText = "SELECT * FROM dotnetmetrics WHERE time>=@fromTime AND time<=@toTime";
-
-            cmd.Parameters.AddWithValue("@fromTime", fromTime.ToUnixTimeMilliseconds());
-            cmd.Parameters.AddWithValue("@toTime", toTime.ToUnixTimeMilliseconds());
-            cmd.Prepare();
-
-            var returnList = new List<DotNetMetrics>();
-
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            using (var connection = new SQLiteConnection(_dbConnection.AddConnectionDb()))
             {
-                //пока есть что читать - читаем
-                while (reader.Read())
-                {
-                    //добавляем объект в список возврата
-                    returnList.Add(new DotNetMetrics
+                //читаем при помощи Query и в шаблон подставляем тип данных
+                //объект которого Dapper сам и заполнит его поля в соответствии с названиями колонок
+                return connection.Query<DotNetMetrics>(
+                    "SELECT * FROM dotnetmetrics WHERE Time>=@fromTime AND Time<=@toTime",
+                    new
                     {
-                        Id = reader.GetInt32(0),
-                        Value = reader.GetInt32(1),
-                        Time = reader.GetInt64(2),
-                    });
-                }
+                        fromTime = fromTime.ToUnixTimeMilliseconds(),
+                        toTime = toTime.ToUnixTimeMilliseconds()
+                    }).ToList();
             }
-            return returnList;
         }
     }
 }

@@ -6,10 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-<<<<<<< HEAD
-=======
 using NLog.Web;
->>>>>>> Lesson-3_branch
 
 namespace MetricsManager
 {
@@ -17,9 +14,6 @@ namespace MetricsManager
     {
         public static void Main(string[] args)
         {
-<<<<<<< HEAD
-            CreateHostBuilder(args).Build().Run();
-=======
             var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 
             try
@@ -39,7 +33,6 @@ namespace MetricsManager
                 NLog.LogManager.Shutdown();
             }
             
->>>>>>> Lesson-3_branch
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -47,9 +40,6 @@ namespace MetricsManager
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-<<<<<<< HEAD
-                });
-=======
                 })
                 .ConfigureLogging(logging =>
                 {
@@ -57,6 +47,5 @@ namespace MetricsManager
                     logging.SetMinimumLevel(LogLevel.Trace);
                 })
                 .UseNLog();  // NLog: Setup NLog for Dependency injection
->>>>>>> Lesson-3_branch
     }
 }
