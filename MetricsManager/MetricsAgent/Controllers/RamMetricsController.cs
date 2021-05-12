@@ -1,20 +1,10 @@
-<<<<<<< HEAD
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-=======
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using MetricsAgent.DAL;
-using MetricsAgent.Models;
+using Microsoft.Extensions.Logging;
 using MetricsAgent.Requests;
 using MetricsAgent.Responses;
-using Microsoft.Extensions.Logging;
->>>>>>> Lesson-3_branch
+using MetricsAgent.DAL;
+using AutoMapper;
 
 namespace MetricsAgent.Controllers
 {
@@ -22,36 +12,21 @@ namespace MetricsAgent.Controllers
     [ApiController]
     public class RamMetricsController : ControllerBase
     {
-<<<<<<< HEAD
-        [HttpGet("available/{freeMemoryRamSizeInMb}")]
-        public IActionResult GetMetricsFromAgent([FromRoute] decimal freeMemoryRamSizeInMb)
-        {
-            return Ok();
-        }
-=======
         private readonly ILogger<RamMetricsController> _logger;
 
         private readonly IRamMetricsRepository _repository;
 
-        public RamMetricsController(ILogger<RamMetricsController> logger, IRamMetricsRepository repository)
+        private readonly IMapper _mapper;
+
+        public RamMetricsController(ILogger<RamMetricsController> logger, IRamMetricsRepository repository, IMapper mapper)
         {
             _logger = logger;
 
             _logger.LogDebug(1, "NLog injected into RamMetricsController");
 
             _repository = repository;
-        }
 
-        //Все-таки решил добавить метод Create для mock тестов
-        [HttpPost("create")]
-        public IActionResult Create([FromBody] RamMetricCreateRequest request)
-        {
-            _repository.Create(new RamMetrics()
-            {
-                Time = request.Time.ToUnixTimeMilliseconds(),
-                Value = request.Value,
-            });
-            return Ok();
+            _mapper = mapper;
         }
 
         [HttpGet("getbytimeperiod")]
@@ -68,16 +43,10 @@ namespace MetricsAgent.Controllers
 
             foreach (var metric in metrics)
             {
-                response.Metrics.Add(new RamMetricDto()
-                {
-                    Time = DateTimeOffset.FromUnixTimeMilliseconds(metric.Time), 
-                    Value = metric.Value, 
-                    Id = metric.Id,
-                });
+                response.Metrics.Add(_mapper.Map<RamMetricDto>(metric));
             }
 
             return Ok(response);
         }
->>>>>>> Lesson-3_branch
     }
 }

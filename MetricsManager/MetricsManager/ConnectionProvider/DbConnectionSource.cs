@@ -11,7 +11,7 @@ namespace MetricsManager
 
         public DbConnectionSource()
         {
-            DbConnection = "Data Source =:memory:";
+            DbConnection = @"Data Source=metrics.db;Version=3;Pooling=True;Max Pool Size=100;";
         }
     }
 }
