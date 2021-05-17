@@ -1,24 +1,16 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-<<<<<<< HEAD
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-=======
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Data.SQLite;
+using AutoMapper;
 using MetricsAgent.DAL;
->>>>>>> Lesson-3_branch
+using FluentMigrator.Runner;
+using MetricsAgent.Factory;
+using MetricsAgent.Jobs;
+using Quartz.Spi;
+using Quartz;
+using Quartz.Impl;
 
 namespace MetricsAgent
 {
@@ -34,41 +26,74 @@ namespace MetricsAgent
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
-<<<<<<< HEAD
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "MetricsAgent", Version = "v1" });
-            });
-=======
-            ConfigureSqlLiteConnection(services);
-            services.AddScoped<ICpuMetricsRepository, CpuMetricsRepository>();
-            services.AddScoped<IDotNetMetricsRepository, DotMetricsRepository>();
-            services.AddScoped<IHddMetricsRepository, HddMetricsRepository>();
-            services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
-            services.AddScoped<IRamMetricsRepository, RamMetricsRepository>();
+            services.AddSingleton<ICpuMetricsRepository, CpuMetricsRepository>();
+            services.AddSingleton<IDotNetMetricsRepository, DotNetMetricsRepository>();
+            services.AddSingleton<IHddMetricsRepository, HddMetricsRepository>();
+            services.AddSingleton<INetworkMetricsRepository, NetworkMetricsRepository>();
+            services.AddSingleton<IRamMetricsRepository, RamMetricsRepository>();
+            services.AddSingleton<IDbConnection, DbConnectionSource>();
+            services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+            services.AddHostedService<QuartzHostedService>();
 
->>>>>>> Lesson-3_branch
+            //добавляем нашу задачу
+
+            //cpu
+            services.AddSingleton<CpuMetricsJobs>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(CpuMetricsJobs),
+                cronExpression: "0/5 * * * * ?")); //запуск каждые 5 сек.
+            //dotnet
+            services.AddSingleton<DotNetMetricsJobs>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(DotNetMetricsJobs),
+                cronExpression: "0/5 * * * * ?")); //запуск каждые 5 сек.
+            //hdd
+            services.AddSingleton<HddMetricsJobs>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(HddMetricsJobs),
+                cronExpression: "0/5 * * * * ?")); //запуск каждые 5 сек.
+            //network
+            services.AddSingleton<NetworkMetricsJobs>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(NetworkMetricsJobs),
+                cronExpression: "0/5 * * * * ?")); //запуск каждые 5 сек.
+            //ram
+            services.AddSingleton<RamMetricsJobs>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(RamMetricsJobs),
+                cronExpression: "0/5 * * * * ?")); //запуск каждые 5 сек.
+
+            var mapperConfiguration = new MapperConfiguration(mp => mp
+                .AddProfile(new MapperProfile()));
+            var mapper = mapperConfiguration.CreateMapper();
+            services.AddSingleton(mapper);
+
+
+            var dbConnectionSource = new DbConnectionSource();
+            var connection = dbConnectionSource.AddConnectionDb(100, true);
+
+            services.AddFluentMigratorCore()
+                .ConfigureRunner(rb => rb
+                    // добавляем поддержку SQLite 
+                    .AddSQLite()
+                    // устанавливаем строку подключения
+                    .WithGlobalConnectionString(connection)
+                    // подсказываем где искать классы с миграциями
+                    .ScanIn(typeof(Startup).Assembly).For.Migrations())
+                    .AddLogging(lb => lb
+                    .AddFluentMigratorConsole());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMigrationRunner migrationRunner)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-<<<<<<< HEAD
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MetricsAgent v1"));
             }
 
-            app.UseHttpsRedirection();
-
-=======
-            }
-
->>>>>>> Lesson-3_branch
             app.UseRouting();
 
             app.UseAuthorization();
@@ -77,55 +102,9 @@ namespace MetricsAgent
             {
                 endpoints.MapControllers();
             });
+
+            // запускаем миграции
+            migrationRunner.MigrateUp();
         }
-<<<<<<< HEAD
-=======
-
-        //конфигурация нашего подключения к бд
-        private void ConfigureSqlLiteConnection(IServiceCollection services)
-        {
-            var dbConnectionSource = new DbConnectionSource();
-            
-            var connection = new SQLiteConnection(dbConnectionSource.DbConnection);
-            connection.Open();
-            PrepareSchema(connection, "cpumetrics");
-            PrepareSchema(connection, "dotnetmetrics");
-            PrepareSchema(connection, "hddmetrics");
-            PrepareSchema(connection, "networkmetrics");
-            PrepareSchema(connection, "rammetrics");
-            services.AddSingleton(connection);
-        }
-
-        //сборка базы данных
-        private void PrepareSchema(SQLiteConnection connection, string tableName)
-        {
-            using (var command = new SQLiteCommand(connection))
-            {
-                //задаем новый текст команды для выполнения
-                //удаляем таблицу с метриками если она существует в базе данных
-                command.CommandText = $"DROP TABLE IF EXISTS {tableName}";
-                command.ExecuteNonQuery();
-
-                command.CommandText = @$"CREATE TABLE {tableName}(id INTEGER PRIMARY KEY, value INT, time INT64)";
-                command.ExecuteNonQuery();
-
-                //вносим данные в созданную таблицу бд
-                command.CommandText = $"INSERT INTO {tableName}(value, time) VALUES(49, 1617224400000)";
-                command.ExecuteNonQuery();
-                command.CommandText = $"INSERT INTO {tableName}(value, time) VALUES(55, 1617570000000)";
-                command.ExecuteNonQuery();
-                command.CommandText = $"INSERT INTO {tableName}(value, time) VALUES(101, 1618002000000)";
-                command.ExecuteNonQuery();
-                command.CommandText = $"INSERT INTO {tableName}(value, time) VALUES(18, 1618434000000)";
-                command.ExecuteNonQuery();
-                command.CommandText = $"INSERT INTO {tableName}(value, time) VALUES(94, 1618866000000)";
-                command.ExecuteNonQuery();
-                command.CommandText = $"INSERT INTO {tableName}(value, time) VALUES(94, 1619298000000)";
-                command.ExecuteNonQuery();
-                command.CommandText = $"INSERT INTO {tableName}(value, time) VALUES(94, 1619730000000)";
-                command.ExecuteNonQuery();
-            }
-        }
->>>>>>> Lesson-3_branch
     }
 }

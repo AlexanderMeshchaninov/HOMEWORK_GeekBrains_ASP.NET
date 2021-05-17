@@ -1,74 +1,53 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-<<<<<<< HEAD
-=======
+using AutoMapper;
 using Microsoft.Extensions.Logging;
->>>>>>> Lesson-3_branch
+using MetricsManager.DAL;
+using MetricsManager.Requests;
+using MetricsManager.Responses;
 
 namespace MetricsManager.Controllers
 {
-    [Route("api/metrics/hdd")]
+    [Route("api/metrics/manager/hdd")]
     [ApiController]
     public class HddMetricsController : ControllerBase
     {
-<<<<<<< HEAD
-        [HttpGet("agent/{agentId}/from/{fromTime}/to/{toTime}")]
-        public IActionResult GetMetricsFromAgent([FromRoute] int agentId, [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
-        {
-=======
         private readonly ILogger<HddMetricsController> _logger;
 
-        public HddMetricsController(ILogger<HddMetricsController> logger)
+        private readonly IHddMetricsAgentsRepository _repository;
+
+        private readonly IMapper _mapper;
+
+        public HddMetricsController(ILogger<HddMetricsController> logger, IHddMetricsAgentsRepository repository, IMapper mapper)
         {
             _logger = logger;
 
             _logger.LogDebug(1, "NLog injected into HddMetricsController");
+
+            _repository = repository;
+
+            _mapper = mapper;
         }
 
-        [HttpGet("agent/{agentId}/from/{fromTime}/to/{toTime}")]
-        public IActionResult GetMetricsFromAgent([FromRoute] int agentId, [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
+        [HttpGet("getmetricsfromagent")]
+        public IActionResult GetMetricsFromAgent([FromBody] HddMetricsApiRequest request)
         {
-            _logger.LogInformation(1, $"This log from GetMetricsFromAgent - agentId:{agentId}, fromTime:{fromTime}, toTime:{toTime}");
+            _logger.LogInformation(1, $"Starting new request to HddMetrics agent " +
+                                      $"- fromTime:{request.FromTime}, toTime:{request.ToTime}");
 
->>>>>>> Lesson-3_branch
-            return Ok();
-        }
+            var metrics = _repository.GetByTimePeriod(request.FromTime, request.ToTime);
 
-        [HttpGet("agent/{agentId}/from/{fromTime}/to/{toTime}/percintiles/{percentile}")]
-        public IActionResult GetMetricsPercentilesFromAgent([FromRoute] int agentId, [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
-        {
-<<<<<<< HEAD
-=======
-            _logger.LogInformation(1, $"This log from GetMetricsPercentilesFromAgent - agentId:{agentId}, fromTime:{fromTime}, toTime:{toTime}");
+            var response = new HddMetricsApiResponse()
+            {
+                Metrics = new List<HddMetricDto>()
+            };
 
->>>>>>> Lesson-3_branch
-            return Ok();
-        }
+            foreach (var metric in metrics)
+            {
+                response.Metrics.Add(_mapper.Map<HddMetricDto>(metric));
+            }
 
-        [HttpHead("cluster/from/{fromTime}/to/{toTime}")]
-        public IActionResult GetMetricsFromAllCluster([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
-        {
-<<<<<<< HEAD
-=======
-            _logger.LogInformation(1, $"This log from GetMetricsFromAllCluster - fromTime:{fromTime}, toTime:{toTime}");
-
->>>>>>> Lesson-3_branch
-            return Ok();
-        }
-
-        [HttpGet("cluster/from/{fromTime}/to/{toTime}/percentiles/{percentile}")]
-        public IActionResult GetMetricsByPercentileFromAllCluster([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime, [FromRoute] Percentile percentile)
-        {
-<<<<<<< HEAD
-=======
-            _logger.LogInformation(1, $"This log from GetMetricsByPercentileFromAllCluster - fromTime:{fromTime}, toTime:{toTime}, percentile:{percentile}");
-
->>>>>>> Lesson-3_branch
-            return Ok();
+            return Ok(response);
         }
     }
 }

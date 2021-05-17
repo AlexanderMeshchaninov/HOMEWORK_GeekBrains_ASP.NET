@@ -1,74 +1,53 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-<<<<<<< HEAD
-=======
+using AutoMapper;
 using Microsoft.Extensions.Logging;
->>>>>>> Lesson-3_branch
+using MetricsManager.DAL;
+using MetricsManager.Requests;
+using MetricsManager.Responses;
 
 namespace MetricsManager.Controllers
 {
-    [Route("api/metrics/network")]
+    [Route("api/metrics/manager/network")]
     [ApiController]
     public class NetworkMetricsController : ControllerBase
     {
-<<<<<<< HEAD
-        [HttpGet("agent/{agentId}/from/{fromTime}/to/{toTime}")]
-        public IActionResult GetMetricsFromAgent([FromRoute] int agentId, [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
-        {
-=======
         private readonly ILogger<NetworkMetricsController> _logger;
 
-        public NetworkMetricsController(ILogger<NetworkMetricsController> logger)
+        private readonly INetworkMetricsAgentsRepository _repository;
+
+        private readonly IMapper _mapper;
+
+        public NetworkMetricsController(ILogger<NetworkMetricsController> logger, INetworkMetricsAgentsRepository repository, IMapper mapper)
         {
             _logger = logger;
 
             _logger.LogDebug(1, "NLog injected into NetworkMetricsController");
+
+            _repository = repository;
+
+            _mapper = mapper;
         }
 
-        [HttpGet("agent/{agentId}/from/{fromTime}/to/{toTime}")]
-        public IActionResult GetMetricsFromAgent([FromRoute] int agentId, [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
+        [HttpGet("getmetricsfromagent")]
+        public IActionResult GetMetricsFromAgent([FromBody] NetworkMetricsApiRequest request)
         {
-            _logger.LogInformation(1, $"This log from GetMetricsFromAgent - agentId:{agentId}, fromTime:{fromTime}, toTime:{toTime}");
+            _logger.LogInformation(1, $"Starting new request to NetworkMetrics agent " +
+                                      $"- fromTime:{request.FromTime}, toTime:{request.ToTime}");
 
->>>>>>> Lesson-3_branch
-            return Ok();
-        }
+            var metrics = _repository.GetByTimePeriod(request.FromTime, request.ToTime);
 
-        [HttpGet("agent/{agentId}/from/{fromTime}/to/{toTime}/percintiles/{percentile}")]
-        public IActionResult GetMetricsPercentilesFromAgent([FromRoute] int agentId, [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
-        {
-<<<<<<< HEAD
-=======
-            _logger.LogInformation(1, $"This log from GetMetricsPercentilesFromAgent - agentId:{agentId}, fromTime:{fromTime}, toTime:{toTime}");
+            var response = new NetworkMetricsApiResponse()
+            {
+                Metrics = new List<NetworkMetricDto>()
+            };
 
->>>>>>> Lesson-3_branch
-            return Ok();
-        }
+            foreach (var metric in metrics)
+            {
+                response.Metrics.Add(_mapper.Map<NetworkMetricDto>(metric));
+            }
 
-        [HttpHead("cluster/from/{fromTime}/to/{toTime}")]
-        public IActionResult GetMetricsFromAllCluster([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
-        {
-<<<<<<< HEAD
-=======
-            _logger.LogInformation(1, $"This log from GetMetricsFromAllCluster - fromTime:{fromTime}, toTime:{toTime}");
-
->>>>>>> Lesson-3_branch
-            return Ok();
-        }
-
-        [HttpGet("cluster/from/{fromTime}/to/{toTime}/percentiles/{percentile}")]
-        public IActionResult GetMetricsByPercentileFromAllCluster([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime, [FromRoute] Percentile percentile)
-        {
-<<<<<<< HEAD
-=======
-            _logger.LogInformation(1, $"This log from GetMetricsByPercentileFromAllCluster - fromTime:{fromTime}, toTime:{toTime}, percentile:{percentile}");
-
->>>>>>> Lesson-3_branch
-            return Ok();
+            return Ok(response);
         }
     }
 }

@@ -1,62 +1,56 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MetricsManager.DAL;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-<<<<<<< HEAD
-=======
 using Microsoft.Extensions.Logging;
->>>>>>> Lesson-3_branch
+using MetricsManager.Models;
+using MetricsManager.Requests;
 
 namespace MetricsManager.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/metrics/manager/")]
     [ApiController]
     public class AgentsController : ControllerBase
     {
-<<<<<<< HEAD
-        [HttpPost("register")]
-        public IActionResult RegisterAgent([FromBody] AgentInfo agentInfo)
-        {
-=======
         private readonly ILogger<AgentsController> _logger;
 
-        public AgentsController(ILogger<AgentsController> logger)
+        private readonly IAgentsRepository _agentsRepository;
+
+        public AgentsController(ILogger<AgentsController> logger, IAgentsRepository agentsRepository)
         {
             _logger = logger;
 
             _logger.LogDebug(1, "NLog injected into AgentsController");
+
+            _agentsRepository = agentsRepository;
         }
 
         [HttpPost("register")]
-        public IActionResult RegisterAgent([FromBody] AgentInfo agentInfo)
+        public IActionResult RegisterAgent([FromBody] AgentInfoApiRequest request)
         {
-            _logger.LogInformation(1, $"This log from RegisterAgent - agentAddress:{agentInfo.AgentAddress}, agentId:{agentInfo.AgentId}");
+            _logger.LogInformation(1, $"This log from RegisterAgent " +
+                                      $"- agentId:{request.AgentId}, agentAddress:{request.AgentAddress}");
 
->>>>>>> Lesson-3_branch
+            _agentsRepository.Create(new AgentInfo
+            {
+                AgentId = request.AgentId,
+                AgentAddress = request.AgentAddress
+            });
+
             return Ok();
         }
 
         [HttpPut("enable/{agentId}")]
         public IActionResult EnableAgentById([FromRoute] int agentId)
         {
-<<<<<<< HEAD
-=======
             _logger.LogInformation(1, $"This log from EnableAgentById - agentId:{agentId}");
 
->>>>>>> Lesson-3_branch
             return Ok();
         }
 
         [HttpPut("disable/{agentId}")]
         public IActionResult DisableAgentById([FromRoute] int agentId)
         {
-<<<<<<< HEAD
-=======
             _logger.LogInformation(1, $"This log from DisableAgentById - agentId:{agentId}");
 
->>>>>>> Lesson-3_branch
             return Ok();
         }
     }
