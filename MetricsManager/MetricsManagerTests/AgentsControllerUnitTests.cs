@@ -1,45 +1,46 @@
 ﻿using MetricsManager.Controllers;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using MetricsManager.DAL;
+using MetricsManager.Models;
+using MetricsManager.Requests;
 using Xunit;
-<<<<<<< HEAD
-=======
 using Moq;
 using Microsoft.Extensions.Logging;
->>>>>>> Lesson-3_branch
 
 namespace MetricsManagerTests
 {
     public class AgentsControllerUnitTests
     {
-        private AgentsController controller;
+        private readonly AgentsController controller;
 
-<<<<<<< HEAD
-        public AgentsControllerUnitTests()
-        {
-            controller = new AgentsController();
-=======
-        private Mock<ILogger<AgentsController>> _logger;
+        private readonly Mock<ILogger<AgentsController>> _logger;
+
+        private readonly Mock<IAgentsRepository> _repository;
 
         public AgentsControllerUnitTests()
         {
             _logger = new Mock<ILogger<AgentsController>>();
 
-            controller = new AgentsController(_logger.Object);
->>>>>>> Lesson-3_branch
+            _repository = new Mock<IAgentsRepository>();
+
+            controller = new AgentsController(_logger.Object, _repository.Object);
         }
 
         [Fact]
         public void RegisterAgent_ReturnOk()
         {
             //Arrange
-            var agentInfo = new MetricsManager.AgentInfo();
+            _repository.Setup(repository => repository.Create(It.IsAny<AgentInfo>())).Verifiable();
 
             //Act
-            var result = controller.RegisterAgent(agentInfo);
+            var result = controller.RegisterAgent(new AgentInfoApiRequest()
+            {
+                AgentId = 1,
+                AgentAddress = "http://localhost:51684"
+            });
 
             //Assert
-            _ = Assert.IsAssignableFrom<IActionResult>(result);
+            _repository.Verify(repository => repository.Create(It.IsAny<AgentInfo>()));
         }
 
         [Fact]

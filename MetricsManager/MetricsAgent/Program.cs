@@ -1,15 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-<<<<<<< HEAD
-=======
 using NLog.Web;
->>>>>>> Lesson-3_branch
 
 namespace MetricsAgent
 {
@@ -17,9 +10,6 @@ namespace MetricsAgent
     {
         public static void Main(string[] args)
         {
-<<<<<<< HEAD
-            CreateHostBuilder(args).Build().Run();
-=======
             var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 
             try
@@ -38,7 +28,6 @@ namespace MetricsAgent
                 // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
                 NLog.LogManager.Shutdown();
             }
->>>>>>> Lesson-3_branch
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -46,9 +35,6 @@ namespace MetricsAgent
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-<<<<<<< HEAD
-                });
-=======
                 })
                 .ConfigureLogging(logging =>
                 {
@@ -56,6 +42,5 @@ namespace MetricsAgent
                     logging.SetMinimumLevel(LogLevel.Trace);
                 })
                 .UseNLog();  // NLog: Setup NLog for Dependency injection
->>>>>>> Lesson-3_branch
     }
 }

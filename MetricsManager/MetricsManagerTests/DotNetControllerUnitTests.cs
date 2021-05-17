@@ -1,91 +1,53 @@
 ﻿using MetricsManager.Controllers;
-using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using AutoMapper;
+using MetricsManager.DAL;
+using MetricsManager.Models;
+using MetricsManager.Requests;
 using Xunit;
-<<<<<<< HEAD
-=======
 using Moq;
 using Microsoft.Extensions.Logging;
->>>>>>> Lesson-3_branch
+
 
 namespace MetricsManagerTests
 {
     public class DotNetControllerUnitTests
     {
-        private DotNetMetricsController controller;
+        private readonly DotNetMetricsController _controller;
 
-<<<<<<< HEAD
-        public DotNetControllerUnitTests()
-        {
-            controller = new DotNetMetricsController();
-=======
-        private Mock<ILogger<DotNetMetricsController>> _logger;
+        private readonly Mock<ILogger<DotNetMetricsController>> _logger;
+
+        private readonly Mock<IDotNetMetricsAgentsRepository> _repository;
+
+        private readonly IMapper _mapper;
 
         public DotNetControllerUnitTests()
         {
             _logger = new Mock<ILogger<DotNetMetricsController>>();
 
-            controller = new DotNetMetricsController(_logger.Object);
->>>>>>> Lesson-3_branch
+            _repository = new Mock<IDotNetMetricsAgentsRepository>();
+
+            _controller = new DotNetMetricsController(_logger.Object, _repository.Object, _mapper);
         }
 
         [Fact]
-        public void GetMetricsFromAgent_ReturnOk()
+        public void GetMetricsFromAgent()
         {
             //Arrange
-            var agentId = 2;
-            var fromTime = TimeSpan.FromSeconds(0);
-            var toTime = TimeSpan.FromSeconds(100);
+            _repository.Setup(repository => repository
+                    .GetByTimePeriod(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
+                .Returns(new List<DotNetMetrics>()).Verifiable();
 
             //Act
-            var result = controller.GetMetricsFromAgent(agentId, fromTime, toTime);
+            var result = _controller.GetMetricsFromAgent(new DotNetMetricsApiRequest()
+            {
+                FromTime = DateTimeOffset.MinValue,
+                ToTime = DateTimeOffset.UtcNow,
+            });
 
             //Assert
-            _ = Assert.IsAssignableFrom<IActionResult>(result);
-        }
-
-        [Fact]
-        public void GetMetricsPercentilesFromAgent_ReturnOk()
-        {
-            //Arrange
-            var agentId = 8;
-            var fromTime = TimeSpan.FromSeconds(0);
-            var toTime = TimeSpan.FromSeconds(100);
-
-            //Act
-            var result = controller.GetMetricsFromAgent(agentId, fromTime, toTime);
-
-            //Assert
-            _ = Assert.IsAssignableFrom<IActionResult>(result);
-        }
-
-        [Fact]
-        public void GetMetricsFromAllCluster_ReturnOk()
-        {
-            //Arrange
-            var fromTime = TimeSpan.FromSeconds(0);
-            var toTime = TimeSpan.FromSeconds(100);
-
-            //Act
-            var result = controller.GetMetricsFromAllCluster(fromTime, toTime);
-
-            //Assert
-            _ = Assert.IsAssignableFrom<IActionResult>(result);
-        }
-
-        [Fact]
-        public void GetMetricsByPercentileFromAllCluster_ReturnOk()
-        {
-            //Arrange
-            var percentile = MetricsManager.Percentile.P95;
-            var fromTime = TimeSpan.FromSeconds(0);
-            var toTime = TimeSpan.FromSeconds(100);
-
-            //Act
-            var result = controller.GetMetricsByPercentileFromAllCluster(fromTime, toTime, percentile);
-
-            //Assert
-            _ = Assert.IsAssignableFrom<IActionResult>(result);
+            _repository.Verify(repository => repository.GetByTimePeriod(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()));
         }
     }
 }
